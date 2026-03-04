@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
+import LiveMap from '@/components/LiveMap'
+import { trackingService, ChildLocation, TrackingAlert } from '@/lib/trackingService'
 import { 
   Users, 
   AlertTriangle, 
@@ -16,7 +18,10 @@ import {
   ArrowRight,
   ChevronLeft,
   ChevronRight,
-  Camera
+  Camera,
+  Navigation,
+  Activity,
+  MapPin
 } from 'lucide-react'
 import PaymentWhatsAppButton from '@/components/PaymentWhatsAppButton'
 import { paymentUtils } from '@/components/PaymentWhatsAppButton'
@@ -49,11 +54,13 @@ interface NavItem {
 }
 
 export default function GuardianDashboard() {
-  const [alerts, setAlerts] = useState<Alert[]>([])
+  const [alerts, setAlerts] = useState<TrackingAlert[]>([])
   const [children, setChildren] = useState<Child[]>([])
   const [loading, setLoading] = useState(true)
   const [currentAlertIndex, setCurrentAlertIndex] = useState(0)
   const [hasActiveSubscription, setHasActiveSubscription] = useState(false)
+  const [childLocations, setChildLocations] = useState<ChildLocation[]>([])
+  const [isTracking, setIsTracking] = useState(false)
 
   const supabase = createClient()
 
@@ -65,35 +72,60 @@ export default function GuardianDashboard() {
   // Fetch data
   useEffect(() => {
     fetchDashboardData()
+    initializeTracking()
+    
+    return () => {
+      trackingService.stopRealTimeTracking()
+    }
   }, [])
+
+  const initializeTracking = () => {
+    // Set up tracking service listeners
+    trackingService.on('locationUpdate', (location: ChildLocation) => {
+      setChildLocations(prev => {
+        const filtered = prev.filter(loc => loc.childId !== location.childId)
+        return [...filtered, location]
+      })
+    })
+
+    trackingService.on('newAlert', (alert: TrackingAlert) => {
+      setAlerts(prev => [alert, ...prev.slice(0, 9)]) // Keep only 10 most recent
+    })
+
+    // Start real-time tracking
+    trackingService.startRealTimeTracking()
+    setIsTracking(true)
+  }
 
   const fetchDashboardData = async () => {
     setLoading(true)
     try {
-      // Fetch alerts
-      const { data: alertsData, error: alertsError } = await supabase
-        .from('alerts')
-        .select('*')
-        .order('timestamp', { ascending: false })
-        .limit(10)
+      // Get initial data from tracking service
+      const trackingAlerts = trackingService.getAlerts()
+      setAlerts(trackingAlerts.slice(0, 10))
 
-      if (alertsError) {
-        console.error('Error fetching alerts:', alertsError)
-      } else {
-        setAlerts(alertsData || [])
+      // Initialize with some children data
+      setChildren([
+        { id: '1', name: 'Ahmed', age: 12, status: 'active', lastSeen: 'Active now' },
+        { id: '2', name: 'Sara', age: 8, status: 'active', lastSeen: '2 minutes ago' },
+        { id: '3', name: 'Mohammed', age: 15, status: 'active', lastSeen: '5 minutes ago' }
+      ])
+
+      // Get initial locations
+      const initialLocations: ChildLocation[] = []
+      for (const child of ['1', '2', '3']) {
+        const location = await trackingService.getCurrentLocation(child)
+        const childLocation: ChildLocation = {
+          childId: child,
+          location,
+          isWithinGeofence: false,
+          speed: Math.random() * 20,
+          heading: Math.random() * 360
+        }
+        initialLocations.push(childLocation)
       }
+      setChildLocations(initialLocations)
 
-      // Fetch children
-      const { data: childrenData, error: childrenError } = await supabase
-        .from('children')
-        .select('*')
-        .order('name', { ascending: true })
-
-      if (childrenError) {
-        console.error('Error fetching children:', childrenError)
-      } else {
-        setChildren(childrenData || [])
-      }
     } catch (error) {
       console.error('Error fetching dashboard data:', error)
     } finally {
@@ -275,97 +307,90 @@ export default function GuardianDashboard() {
               </Card>
             )}
 
-            {/* Recent Alerts Carousel */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>Recent Alerts</CardTitle>
-                    <CardDescription>
-                      Latest security alerts from your children's devices
-                    </CardDescription>
+            {/* Main Content Grid */}
+            <div className="grid gap-6 lg:grid-cols-3">
+              {/* Live Map - takes 2 columns */}
+              <div className="lg:col-span-2">
+                <LiveMap childLocations={childLocations} />
+              </div>
+
+              {/* Recent Alerts - takes 1 column */}
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>Recent Alerts</CardTitle>
+                      <CardDescription>
+                        Latest security alerts from your children's devices
+                      </CardDescription>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full ${isTracking ? 'bg-green-500 animate-pulse' : 'bg-gray-400'}`} />
+                      <span className="text-xs text-gray-500">
+                        {isTracking ? 'Live' : 'Offline'}
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={prevAlert}
-                      disabled={alerts.length === 0}
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={nextAlert}
-                      disabled={alerts.length === 0}
-                    >
-                      <ChevronRight className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {loading ? (
-                  <div className="space-y-4">
-                    {Array.from({ length: 3 }).map((_, i) => (
-                      <div key={i} className="flex items-center gap-4 p-4 border rounded-lg">
-                        <Skeleton className="w-10 h-10 rounded-full" />
-                        <div className="flex-1 space-y-2">
-                          <Skeleton className="h-4 w-32" />
-                          <Skeleton className="h-3 w-48" />
-                        </div>
-                        <Skeleton className="h-8 w-20" />
-                      </div>
-                    ))}
-                  </div>
-                ) : alerts.length === 0 ? (
-                  <div className="text-center py-8">
-                    <Shield className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">No alerts yet</h3>
-                    <p className="text-muted-foreground">
-                      Your children are browsing safely. No security alerts detected.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {alerts.slice(currentAlertIndex, currentAlertIndex + 3).map((alert) => (
-                      <div key={alert.id} className="flex items-center gap-4 p-4 border rounded-lg hover:bg-gray-50">
-                        <div className="flex-shrink-0">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${getSeverityColor(alert.severity)}`}>
-                            <span className="text-white font-medium text-sm">
-                              {alert.childName.charAt(0).toUpperCase()}
-                            </span>
+                </CardHeader>
+                <CardContent>
+                  {loading ? (
+                    <div className="space-y-4">
+                      {Array.from({ length: 3 }).map((_, i) => (
+                        <div key={i} className="flex items-center gap-3">
+                          <Skeleton className="w-10 h-10 rounded-full" />
+                          <div className="flex-1">
+                            <Skeleton className="h-4 w-24 mb-2" />
+                            <Skeleton className="h-3 w-32" />
                           </div>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-medium text-gray-900">{alert.childName}</span>
-                            <Badge variant={alert.status === 'new' ? 'destructive' : 'secondary'}>
-                              {alert.status}
-                            </Badge>
+                      ))}
+                    </div>
+                  ) : alerts.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Shield className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                      <p className="text-gray-500">No alerts at this time</p>
+                      <p className="text-sm text-gray-400 mt-1">Your children are safe</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {alerts.slice(0, 5).map((alert) => (
+                        <div key={alert.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                          <div className="flex-shrink-0">
+                            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${getSeverityColor(alert.severity)}`}>
+                              <span className="text-white font-medium text-sm">
+                                {alert.childName.charAt(0).toUpperCase()}
+                              </span>
+                            </div>
                           </div>
-                          <p className="text-sm text-gray-600 truncate">{alert.url}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Clock className="w-3 h-3 text-gray-400" />
-                            <span className="text-xs text-gray-500">
-                              {new Date(alert.timestamp).toLocaleString()}
-                            </span>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-medium text-gray-900">{alert.childName}</span>
+                              <Badge variant={alert.acknowledged ? 'secondary' : 'destructive'}>
+                                {alert.acknowledged ? 'Acknowledged' : 'New'}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-gray-600 truncate">{alert.message}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <Clock className="w-3 h-3 text-gray-400" />
+                              <span className="text-xs text-gray-500">
+                                {new Date(alert.timestamp).toLocaleString()}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex-shrink-0">
+                            <Button variant="outline" size="sm" asChild>
+                              <a href="/dashboard/alerts">
+                                View <ArrowRight className="w-3 h-3 ml-1" />
+                              </a>
+                            </Button>
                           </div>
                         </div>
-                        <div className="flex-shrink-0">
-                          <Button variant="outline" size="sm" asChild>
-                            <a href="/dashboard/alerts">
-                              View <ArrowRight className="w-3 h-3 ml-1" />
-                            </a>
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
 
             {/* Usage Analytics */}
             <Card>
@@ -415,25 +440,25 @@ export default function GuardianDashboard() {
                       </div>
                     </div>
 
-                    {/* Category breakdown */}
+                    {/* Alert type breakdown */}
                     <div className="grid gap-4 sm:grid-cols-3">
                       <div className="text-center">
                         <div className="text-2xl font-bold text-red-600">
-                          {alerts.filter(a => a.category === 'porn').length}
+                          {alerts.filter(a => a.type === 'geofence breach').length}
                         </div>
-                        <p className="text-sm text-gray-600">Adult Content</p>
+                        <p className="text-sm text-gray-600">Geofence Alerts</p>
                       </div>
                       <div className="text-center">
                         <div className="text-2xl font-bold text-yellow-600">
-                          {alerts.filter(a => a.category === 'gambling').length}
+                          {alerts.filter(a => a.type === 'suspicious activity').length}
                         </div>
-                        <p className="text-sm text-gray-600">Gambling</p>
+                        <p className="text-sm text-gray-600">Web Activity</p>
                       </div>
                       <div className="text-center">
                         <div className="text-2xl font-bold text-blue-600">
-                          {alerts.filter(a => a.category === 'other').length}
+                          {alerts.filter(a => a.type === 'device offline').length}
                         </div>
-                        <p className="text-sm text-gray-600">Other</p>
+                        <p className="text-sm text-gray-600">Device Issues</p>
                       </div>
                     </div>
                   </div>

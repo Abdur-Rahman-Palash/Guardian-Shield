@@ -155,14 +155,8 @@ export default function PaymentWhatsAppButton({
               WhatsApp Message Template
             </h4>
             <div className="bg-green-50 border border-green-200 p-3 rounded-md">
-              <p className="text-sm whitespace-pre-line font-mono">
-                Assalamualaikum! Guardian Shield Family Plan (৳500/year)
-✅ Unlimited alerts
-✅ 5 children
-✅ Screenshot proof
-
-Nagad: {NAGAD_NUMBER}
-Payment korar por screenshot pathaben
+              <p className="text-sm text-gray-600">
+                Send payment confirmation screenshot to verify your subscription
               </p>
             </div>
           </div>

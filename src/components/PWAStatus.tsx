@@ -77,14 +77,6 @@ export default function PWAStatus() {
         {getStatusIcon()}
         <span className="text-xs">{getStatusText()}</span>
       </Badge>
-      
-      {/* Additional PWA info for development */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="text-xs text-gray-500 hidden lg:block">
-          <span>PWA: {isInstalled ? '✅' : '📱'}</span>
-          <span className="ml-1">Cache: {cacheStatus === 'cached' ? '✅' : '⏳'}</span>
-        </div>
-      )}
     </div>
   )
 }

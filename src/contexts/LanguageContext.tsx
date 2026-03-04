@@ -87,7 +87,6 @@ const translations: Translations = {
   'settings.notifications': { en: 'Notifications', bn: 'বিজ্ঞপ্তি' },
   'settings.privacy': { en: 'Privacy & Security', bn: 'গোপনীয়তা ও নিরাপত্তা' },
   'settings.language': { en: 'Language', bn: 'ভাষা' },
-  'settings.theme': { en: 'Theme', bn: 'থিম' },
   'settings.account': { en: 'Account Settings', bn: 'অ্যাকাউন্ট সেটিংস' },
   'settings.email': { en: 'Email Address', bn: 'ইমেল ঠিকানা' },
   'settings.phone': { en: 'Phone Number', bn: 'ফোন নম্বর' },

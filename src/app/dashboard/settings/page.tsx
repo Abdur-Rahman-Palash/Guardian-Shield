@@ -26,7 +26,6 @@ import {
 
 export default function SettingsPage() {
   const { t } = useLanguage()
-  const [darkMode, setDarkMode] = useState(false)
   const [notifications, setNotifications] = useState({
     email: true,
     push: true,
@@ -137,26 +136,6 @@ export default function SettingsPage() {
 
       {/* Quick Settings */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border border-gray-200 p-4">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Moon className="w-5 h-5 text-gray-600" />
-              <span className="font-medium text-gray-900">Dark Mode</span>
-            </div>
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className={`w-12 h-6 rounded-full transition-colors ${
-                darkMode ? 'bg-blue-600' : 'bg-gray-300'
-              }`}
-            >
-              <div className={`w-5 h-5 bg-white rounded-full transition-transform ${
-                darkMode ? 'translate-x-6' : 'translate-x-0.5'
-              }`}></div>
-            </button>
-          </div>
-          <p className="text-sm text-gray-600">Toggle dark theme</p>
-        </div>
-
         <div className="bg-white rounded-xl border border-gray-200 p-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">

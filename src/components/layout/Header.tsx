@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import LiveMap from '@/components/LiveMap'
+import NotificationSystem from '@/components/NotificationSystem'
 import { createClient } from '@/utils/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -21,8 +23,6 @@ import {
   AlertTriangle,
   CreditCard,
   Settings,
-  Moon,
-  Sun,
   Zap
 } from 'lucide-react'
 
@@ -35,7 +35,6 @@ export default function Header({ user: propUser }: HeaderProps) {
   const [scrolled, setScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
-  const [darkMode, setDarkMode] = useState(false)
   const [notifications, setNotifications] = useState(2)
   const [user, setUser] = useState<any>(propUser || null)
   const [loading, setLoading] = useState(!propUser)
@@ -182,30 +181,9 @@ export default function Header({ user: propUser }: HeaderProps) {
               {/* PWA Status */}
               <PWAStatus />
               
-              {/* Theme Toggle */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setDarkMode(!darkMode)}
-                className="hidden sm:flex hover:bg-blue-50"
-              >
-                {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-              </Button>
-
               {/* Notifications */}
               {user && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="relative hover:bg-blue-50"
-                >
-                  <Bell className="w-4 h-4" />
-                  {notifications > 0 && (
-                    <Badge className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center p-0">
-                      {notifications}
-                    </Badge>
-                  )}
-                </Button>
+                <NotificationSystem />
               )}
 
               {/* User Menu */}

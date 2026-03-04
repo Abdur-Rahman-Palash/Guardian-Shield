@@ -169,11 +169,13 @@ export default function HomePage() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-              <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg">
-                <Shield className="w-5 h-5 mr-2" />
-                Start Free Trial
+              <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg" asChild>
+                <Link href="/register">
+                  <Shield className="w-5 h-5 mr-2" />
+                  Start Free Trial
+                </Link>
               </Button>
-              <Button variant="outline" size="lg" className="px-8 py-3 text-lg">
+              <Button variant="outline" size="lg" className="px-8 py-3 text-lg" onClick={() => window.open('https://www.linkedin.com/in/abdur-rahman-palash/', '_blank')}>
                 <Globe className="w-5 h-5 mr-2" />
                 Watch Demo
               </Button>
@@ -329,6 +331,13 @@ export default function HomePage() {
                         : 'border border-gray-300 hover:bg-gray-50'
                     }`}
                     variant={plan.popular ? 'default' : 'outline'}
+                    onClick={() => {
+                      if (plan.name === 'School') {
+                        window.open('mailto:sales@guardian-shield.com?subject=School Plan Inquiry', '_self')
+                      } else {
+                        window.location.href = '/register'
+                      }
+                    }}
                   >
                     {plan.cta}
                     <ArrowRight className="w-4 h-4 ml-2" />
@@ -388,13 +397,17 @@ export default function HomePage() {
             Join thousands of parents who trust Guardian Shield to keep their children safe online.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-3">
-              <Shield className="w-5 h-5 mr-2" />
-              Start Free Trial
+            <Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-3" asChild>
+              <Link href="/register">
+                <Shield className="w-5 h-5 mr-2" />
+                Start Free Trial
+              </Link>
             </Button>
-            <Button variant="outline" size="lg" className="border-white text-white hover:bg-white/10 px-8 py-3">
-              <Heart className="w-5 h-5 mr-2" />
-              Learn More
+            <Button variant="outline" size="lg" className="border-white text-white hover:bg-white/10 px-8 py-3" asChild>
+              <Link href="/features">
+                <Heart className="w-5 h-5 mr-2" />
+                Learn More
+              </Link>
             </Button>
           </div>
         </div>

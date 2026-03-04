@@ -50,7 +50,6 @@ const settingsSections = [
     description: "Customize the look and feel of the application",
     icon: Palette,
     items: [
-      { label: "Theme", value: "System", type: "text" },
       { label: "Language", value: "English", type: "text" },
       { label: "Timezone", value: "UTC-5", type: "text" },
     ],

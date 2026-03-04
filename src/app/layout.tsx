@@ -1,8 +1,6 @@
 import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
-import { ThemeToggle } from "@/components/theme-toggle"
 import MainLayout from "@/components/layout/MainLayout"
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister"
 import PWAInstall from "@/components/PWAInstall"
@@ -94,8 +92,6 @@ export default function RootLayout({
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=no, viewport-fit=cover" />
         <meta name="theme-color" content="#2563eb" />
-        <meta name="theme-color" content="#2563eb" media="(prefers-color-scheme: light)" />
-        <meta name="theme-color" content="#1e40af" media="(prefers-color-scheme: dark)" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -113,20 +109,13 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className={`${inter.className} antialiased`} suppressHydrationWarning>
+      <body className={`${inter.className} antialiased`}>
         <ServiceWorkerRegister />
         <LanguageProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <MainLayout>
-              {children}
-            </MainLayout>
-            <PWAInstall />
-          </ThemeProvider>
+          <MainLayout>
+            {children}
+          </MainLayout>
+          <PWAInstall />
         </LanguageProvider>
       </body>
     </html>
