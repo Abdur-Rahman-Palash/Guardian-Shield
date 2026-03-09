@@ -46,7 +46,7 @@ class GuardianShieldContent {
 
     async fetchRiskyDomains() {
         try {
-            const response = await fetch('https://your-api-url.com/api/risky-domains');
+            const response = await fetch('http://localhost:3004/api/risky-domains');
             if (response.ok) {
                 const data = await response.json();
                 this.riskyDomains = data.domains || [];
@@ -135,7 +135,7 @@ class GuardianShieldContent {
         this.preventNavigation();
         
         // Send notification
-        this.showBrowserNotification(`Blocked: ${category.toUpperCase()} content`, 'danger');
+        this.showBrowserNotification(`BLOCKED - ${category?.toUpperCase() || 'RISKY'}`, 'danger');
     }
 
     createBlockOverlay(category) {
@@ -151,7 +151,7 @@ class GuardianShieldContent {
                         </svg>
                         <span>Guardian Shield</span>
                     </div>
-                    <div class="block-category">${category?.toUpperCase() || 'BLOCKED'}</div>
+                    <div class="block-category">BLOCKED - ${category?.toUpperCase() || 'RISKY'}</div>
                 </div>
                 <div class="block-content">
                     <h2>Content Blocked</h2>
@@ -369,7 +369,7 @@ class GuardianShieldContent {
 
         chrome.notifications.create({
             type: 'basic',
-            iconUrl: chrome.runtime.getURL('icons/icon48.png'),
+            iconUrl: chrome.runtime.getURL('icon.svg'),
             title: 'Guardian Shield',
             message: message
         });

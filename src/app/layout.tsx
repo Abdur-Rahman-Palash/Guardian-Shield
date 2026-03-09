@@ -4,6 +4,8 @@ import "./globals.css"
 import MainLayout from "@/components/layout/MainLayout"
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister"
 import PWAInstall from "@/components/PWAInstall"
+import ExtensionNative from "@/components/ExtensionNative"
+import DemoMode from "@/components/DemoMode"
 import { LanguageProvider } from "@/contexts/LanguageContext"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -116,6 +118,8 @@ export default function RootLayout({
             {children}
           </MainLayout>
           <PWAInstall />
+          <ExtensionNative />
+          <DemoMode />
         </LanguageProvider>
       </body>
     </html>

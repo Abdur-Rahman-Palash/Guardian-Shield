@@ -45,7 +45,7 @@ class GuardianShieldBackground {
 
     async fetchRiskyDomains() {
         try {
-            const response = await fetch('https://your-api-url.com/api/risky-domains');
+            const response = await fetch('http://localhost:3003/api/risky-domains');
             if (response.ok) {
                 const data = await response.json();
                 this.riskyDomains = data.domains || [];
@@ -247,7 +247,7 @@ class GuardianShieldBackground {
             if (this.settings.enableNotifications) {
                 chrome.notifications.create({
                     type: 'basic',
-                    iconUrl: chrome.runtime.getURL('icons/icon48.png'),
+                    iconUrl: chrome.runtime.getURL('icon.svg'),
                     title: 'Guardian Shield Alert',
                     message: `Blocked ${category?.toUpperCase()} content: ${new URL(url).hostname}`
                 });
@@ -393,7 +393,7 @@ class GuardianShieldBackground {
         // Show update notification
         chrome.notifications.create({
             type: 'basic',
-            iconUrl: chrome.runtime.getURL('icons/icon48.png'),
+            iconUrl: chrome.runtime.getURL('icon.svg'),
             title: 'Guardian Shield Updated',
             message: `Updated from version ${previousVersion} to ${chrome.runtime.getManifest().version}`
         });

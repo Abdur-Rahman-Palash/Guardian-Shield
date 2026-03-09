@@ -17,7 +17,11 @@ class GuardianShieldPopup {
         await this.loadRiskyDomains();
         await this.getCurrentTab();
         this.setupEventListeners();
-        this.updateUI();
+        
+        // Update UI after loading
+        setTimeout(() => {
+            this.updateUI();
+        }, 500);
     }
 
     async loadSettings() {
@@ -54,7 +58,7 @@ class GuardianShieldPopup {
 
     async fetchRiskyDomains() {
         try {
-            const response = await fetch('https://your-api-url.com/api/risky-domains');
+            const response = await fetch('http://localhost:3004/api/risky-domains');
             if (response.ok) {
                 const data = await response.json();
                 this.riskyDomains = data.domains || [];
@@ -131,7 +135,7 @@ class GuardianShieldPopup {
 
         // Open dashboard button
         document.getElementById('openDashboard').addEventListener('click', () => {
-            chrome.tabs.create({ url: 'https://your-dashboard-url.com/dashboard' });
+            chrome.tabs.create({ url: 'http://localhost:3004/dashboard' });
         });
 
         // Listen for messages from content script
@@ -141,16 +145,35 @@ class GuardianShieldPopup {
             }
             sendResponse({ received: true });
         });
+
+        // Refresh current tab info when popup opens
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            if (tabs[0]) {
+                this.currentTab = tabs[0];
+                this.updateUI();
+            }
+        });
     }
 
     updateUI() {
-        if (!this.currentTab) return;
+        if (!this.currentTab) {
+            // Show loading state
+            const urlText = document.querySelector('#currentUrl .url-text');
+            if (urlText) {
+                urlText.textContent = 'Loading...';
+            }
+            const statusText = document.getElementById('statusText');
+            if (statusText) {
+                statusText.textContent = 'Loading...';
+            }
+            return;
+        }
 
         // Update current URL
         const urlElement = document.getElementById('currentUrl');
         const urlText = urlElement.querySelector('.url-text');
         if (urlText) {
-            urlText.textContent = this.currentTab.url || 'Loading...';
+            urlText.textContent = this.currentTab.url || 'No URL';
         }
 
         // Check if current site is risky
@@ -256,7 +279,7 @@ class GuardianShieldPopup {
         }
 
         try {
-            const response = await fetch('https://your-api-url.com/api/alerts', {
+            const response = await fetch('http://localhost:3004/api/alerts', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -340,7 +363,7 @@ class GuardianShieldPopup {
             formData.append('url', this.currentTab?.url || '');
             formData.append('timestamp', new Date().toISOString());
 
-            const alertResponse = await fetch('https://your-api-url.com/api/alerts', {
+            const alertResponse = await fetch('http://localhost:3004/api/alerts', {
                 method: 'POST',
                 body: formData
             });

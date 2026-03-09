@@ -97,7 +97,9 @@
     padding: 4px 12px;
     border-radius: 20px;
     font-size: 12px;
-    font-weight: 500;
+    font-weight: 600;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .guardian-shield-block .block-content {
