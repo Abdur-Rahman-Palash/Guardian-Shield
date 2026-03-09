@@ -82,12 +82,12 @@ Visit `http://localhost:3000` to see the application.
 
 ```env
 # Supabase Configuration
-NEXT_PUBLIC_SUPABASE_URL=https://pjurytrnisyhdpmoeaqx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_PRFvkpngQe9BTvebyyyVMg_7BfvLybK
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 
 # Email Configuration
-ADMIN_EMAIL=abdurrahmanpalashbd@gmail.com
+ADMIN_EMAIL=admin@guardianshield.com
 RESEND_API_KEY=your_resend_api_key
 FROM_EMAIL=alerts@guardianshield.com
 
@@ -96,7 +96,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 NEXT_PUBLIC_APP_NAME=Guardian Shield
 
 # WhatsApp
-WHATSAPP_PHONE_NUMBER=+8801786433078
+WHATSAPP_PHONE_NUMBER=+1234567890
 ```
 
 ## Project Structure
